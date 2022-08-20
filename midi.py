@@ -1,15 +1,15 @@
+#ADBeta 
+#20 Aug 2022
+#Version 0.5
+
 import time
 
 #Midi open functionality
 from rtmidi.midiutil import open_midiinput
 
-#Dataclass for MIDI messages
-class MidiData:
-	status = False
-	button = 0
-	velocity = 0
-	
-cMsg = MidiData 
+#Array of buttons
+MIDIBtn = [0] * 127
+
 
 #List all availible MIDI Ports/Devices
 def list():
@@ -33,26 +33,19 @@ def poll():
 		
 			#If the packet has information
 			if msg:
-				statusStr = msg[0][0]
-				buttonStr = msg[0][1]
-				velocityStr = msg[0][2]
+				#Get the status byte and the 'pitch' byte
+				status = msg[0][0]
+				pitch = msg[0][1]
 				
-				#Set the class variables based on the string
-				if statusStr == 144:
-					cMsg.status = True
-				if statusStr == 128:
-					cMsg.status = False
+				if status == 144:
+					MIDIBtn[pitch] = 1
 				
-				cMsg.button = int(buttonStr)
-				cMsg.velocity = int(velocityStr)
+				if status == 128:
+					MIDIBtn[pitch] = 0
 				
 				
-				#Set a variable to just the packet bytes from the MIDI message
-				print(cMsg.status, cMsg.button, cMsg.velocity)
-				
-				
-				#message = msg
-				#print("[%s]" % (message))
+				#print(msg[0])
+				print(MIDIBtn)
 
 			time.sleep(0.005)
 	except KeyboardInterrupt:
