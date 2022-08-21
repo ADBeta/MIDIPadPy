@@ -1,27 +1,29 @@
 #ADBeta 
-#20 Aug 2022
-#Version 0.5
+#21 Aug 2022
+#Version 0.7
 
 import time
+import rtmidi
 
-#Midi open functionality
-from rtmidi.midiutil import open_midiinput
+midiout = rtmidi.MidiOut()
+midiin = rtmidi.MidiIn()
 
-#Array of buttons
-MIDIBtn = [0] * 127
-
+#Array of button states
+MIDIBtnState = [0] * 127
 
 #List all availible MIDI Ports/Devices
 def list():
 	print("list");
 
-#Open specific port to be used as the input device
+#Open specific port, this is the input and output device
 def open(port):
-	global g_midiin
+	global midiin, midiout
 	
-	g_midiin, port_name = open_midiinput(port)
-	#Verbose print
-	print("MIDI data via port: ", port_name)
+	midiin.open_port(port)
+	midiout.open_port(port)
+	
+	#Verbose print TODO
+	#print("MIDI data via port: ", port_name)
 
 #Constantly poll the port for new messages
 def poll():
@@ -29,34 +31,50 @@ def poll():
 		timer = time.time()
 		while True:
 			#Get a MIDI message packet from buffer
-			msg = g_midiin.get_message()
+			msg = midiin.get_message()
 		
 			#If the packet has information
 			if msg:
+				
 				#Get the status byte and the 'pitch' byte
-				status = msg[0][0]
-				pitch = msg[0][1]
+				status = int(msg[0][0])
+				pitch = int(msg[0][1])
 				
+				#Set the button at -pitch- to 0 or 1 depending on status
 				if status == 144:
-					MIDIBtn[pitch] = 1
-				
+					MIDIBtnState[pitch] = 1
+					
+					#Set the button light to on
+					btnLightCall(pitch, 5)
+			
 				if status == 128:
-					MIDIBtn[pitch] = 0
-				
-				
-				#print(msg[0])
-				print(MIDIBtn)
-
-			time.sleep(0.005)
+					MIDIBtnState[pitch] = 0
+					
+					#Set the button light to off
+					btnLightCall(pitch, 0)
+					
+			#Sleep for some amount of time. Laggy at 0.05 but less CPU
+			time.sleep(0.0005)
 	except KeyboardInterrupt:
 		print('')
 	finally:
 		close()
 
-#Close and delete the midi in device
-def close():
-	global g_midiin
+#Manage the output lighting based on call 
+def btnLightCall(pitch: int, val: int):
+	midiout.send_message([144, pitch, val])
 
+#Close and delete the midi devices
+def close():
+	global midiin, midiout
 	print("Exit.")
-	g_midiin.close_port()
-	del g_midiin
+	
+	#Delete midi in
+	midiin.close_port()
+	del midiin
+	
+	#Delete midi out
+	midiout.close_port()
+	del midiout
+	
+	
