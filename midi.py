@@ -5,8 +5,10 @@
 import time
 import rtmidi
 
-midiout = rtmidi.MidiOut()
-midiin = rtmidi.MidiIn()
+#MIDI input/output devices, force ALSA API
+midiout = rtmidi.MidiOut(rtapi=rtmidi.API_LINUX_ALSA)
+midiin = rtmidi.MidiIn(rtapi=rtmidi.API_LINUX_ALSA)
+
 
 #Array of button states
 MIDIBtnState = [0] * 127
@@ -14,6 +16,7 @@ MIDIBtnState = [0] * 127
 #List all availible MIDI Ports/Devices
 def list():
 	print("list");
+	#TODO
 
 #Open specific port, this is the input and output device
 def open(port):
@@ -23,7 +26,7 @@ def open(port):
 	midiout.open_port(port)
 	
 	#Verbose print TODO
-	#print("MIDI data via port: ", port_name)
+	print("MIDI data via port: ", midiin.get_port_name)
 
 #Constantly poll the port for new messages
 def poll():
