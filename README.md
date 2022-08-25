@@ -13,6 +13,7 @@ little optimization.
 
 --So far
 * rtmidi-python
+* simpleaudio
 
 Run MIDIPad in python3, currently the port is hard-set in code until a UI or
 nicer interface is made
