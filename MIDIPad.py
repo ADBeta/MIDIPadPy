@@ -1,17 +1,17 @@
 #ADBeta 
-#25 Aug 2022
+#26 Aug 2022
 #Version 0.9
 
 import midi
+import sound
 import time
 
 # Init #########################################################################
 #Open the midi device with the selected port
 midi.open(1);
 
-print("Polling the MIDI Device. Press Control-C to exit.")
-
 # Main program loop ############################################################
+print("Polling the MIDI Device. Press Control-C to exit.")
 try:
 	timer = time.time()
 	while True:

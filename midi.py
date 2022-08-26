@@ -1,13 +1,11 @@
 #ADBeta
 
 import rtmidi
+import sound
 
 #MIDI input/output devices, force ALSA API
 midiout = rtmidi.MidiOut(rtapi=rtmidi.API_LINUX_ALSA)
 midiin = rtmidi.MidiIn(rtapi=rtmidi.API_LINUX_ALSA)
-
-#Array of button states
-MIDIBtnState = [0] * 127
 
 #List all availible MIDI Ports/Devices
 def list():
@@ -32,22 +30,31 @@ def poll():
 			
 	#If the packet has information
 	if msg:
-			
 		#Get the status byte and the 'pitch' byte
 		status = int(msg[0][0])
 		pitch = int(msg[0][1])
+		velocity = int(msg[0][2])
 				
-		#Set the button at -pitch- to 0 or 1 depending on status
-		if status == 144:
-			MIDIBtnState[pitch] = 1
-			#Set the button light to on
-			btnLightCall(pitch, 5)
+		if status == 144 or status == 128:
+			#Send button data to function for handling
+			MIDIKey(status, pitch, velocity)
+		
+		#TODO Add control/slider handler
 			
-		if status == 128:
-			MIDIBtnState[pitch] = 0		
-			#Set the button light to off
-			btnLightCall(pitch, 0)
 					
+#Handle a MIDI key press, status, pitch, velocity.
+def MIDIKey(s: int, p: int, v: int):
+	#TODO If midiout is enabled
+	#If Keys is pressed, send lighting on signal
+	if s == 144:
+		midiout.send_message([144, p, 5])
+		sound.playFromKey(p)
+	
+	#If key is released, send lighting off signal
+	if s == 128:
+		midiout.send_message([144, p, 0])
+	
+	
 					
 #Manage the output lighting based on call 
 def btnLightCall(pitch: int, val: int):
