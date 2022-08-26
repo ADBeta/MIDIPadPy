@@ -1,29 +1,40 @@
 # MIDIPad 
 
 (Python Edition)
-MIDIPad is a simple MIDI device reader, for Launchpad/APC etc
+MIDIPad is a simple MIDI drum machine for linux, using Launchpad, APC etc.
 
 ## Description
 
-This program is inteded to be really quick to impliment in order to get a 
-functional prototype for the program. It is written in python, using very 
-little optimization. 
+This program is a fast implimentation of a basic MIDI input/output drum machine.
+It is not intened to be fast, or particularly useful. 
+
+Note: This is designed for linux specifically to make up for the lack of 
+FLStudio or Ableton etc. 
 
 ## Dependancies & How To Use
 
---So far
 * rtmidi-python
 * simpleaudio
 
-Run MIDIPad in python3, currently the port is hard-set in code until a UI or
-nicer interface is made
+Run MIDIPad with python3, the port can be set via the MIDIPad.py file or via
+command line list and select.
+
+You will need to copy some sample files to a directory called "samples" :
+kick.wav
+snare.wav
+hat.wav
+cowbell.wav
+crash.wav
 
 ## TO-DO 
 
-Currently the program is being written only to comply with the Akai APC, other
-models are untested currently.
+Currently the program is only tested with the "AKAI APC Mini", the lighting 
+commands may not work with other deivces, no guarantees are made it wil work
+at all for other devices
 
-Current very janky, and with limited functionality. Standby for better code
+Current very janky, and with limited functionality. Future revisions will 
+have GUI modules, faster execution and more options, controls and functions
+(Revision 2 will be written in C++)
 
 Written by ADBeta 
 
