@@ -1,12 +1,17 @@
-#ADBeta
-
 import rtmidi
-import sound
 
+# MIDI Variables ###############################################################
 #MIDI input/output devices, force ALSA API
 midiout = rtmidi.MidiOut(rtapi=rtmidi.API_LINUX_ALSA)
 midiin = rtmidi.MidiIn(rtapi=rtmidi.API_LINUX_ALSA)
 
+#Key input event variables
+class EventKeyIn:
+	s = 0 #Status
+	p = 0 #Pitch
+	v = 0 #Velocity
+
+# Functions ####################################################################
 #List all availible MIDI Ports/Devices
 def list():
 	ports = midiout.get_ports()
@@ -16,49 +21,37 @@ def list():
 #Open specific port, this is the input and output device
 def open(port):
 	global midiin, midiout
-	
 	midiin.open_port(port)
 	midiout.open_port(port)
 	
-	#Verbose print TODO
 	print("MIDI data via port: ", midiin.get_port_name)
 
-#Constantly poll the port for new messages
+#Poll the MIDI Device for events. Return codes:
+#	0	No change
+#	1	Key Event
+#	2	Control Event TODO
 def poll():
 	#Get a MIDI message packet from buffer
 	msg = midiin.get_message()
 			
 	#If the packet has information
 	if msg:
-		#Get the status byte and the 'pitch' byte
-		status = int(msg[0][0])
-		pitch = int(msg[0][1])
-		velocity = int(msg[0][2])
-				
-		if status == 144 or status == 128:
-			#Send button data to function for handling
-			MIDIKey(status, pitch, velocity)
+		#Get the status, pitch and velocity, pass to key in event class
+		#TODO add cntrl vs key detection and var setting
+		EventKeyIn.s = int(msg[0][0])
+		EventKeyIn.p = int(msg[0][1])
+		EventKeyIn.v = int(msg[0][2])
 		
-		#TODO Add control/slider handler
-			
-					
-#Handle a MIDI key press, status, pitch, velocity.
-def MIDIKey(s: int, p: int, v: int):
-	#TODO If midiout is enabled
-	#If Keys is pressed, send lighting on signal
-	if s == 144:
-		midiout.send_message([144, p, 5])
-		sound.playFromKey(p)
+		return 1
 	
-	#If key is released, send lighting off signal
-	if s == 128:
-		midiout.send_message([144, p, 0])
+	#Else return 0 for no action
+	else:
+		return 0
+		
+#Send 3 ints as a message to the MIDI device
+def send(s: int, p: int, v: int):
+	midiout.send_message([s, p, v])
 	
-	
-					
-#Manage the output lighting based on call 
-def btnLightCall(pitch: int, val: int):
-	midiout.send_message([144, pitch, val])
 
 #Close and delete the midi devices
 def close():
@@ -72,5 +65,3 @@ def close():
 	#Delete midi out
 	midiout.close_port()
 	del midiout
-	
-	
